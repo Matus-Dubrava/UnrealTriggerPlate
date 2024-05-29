@@ -8,6 +8,7 @@ UTriggerPlate::UTriggerPlate() {
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
+	DoorHandler = nullptr;
 }
 
 // Called when the game starts
@@ -20,10 +21,12 @@ void UTriggerPlate::BeginPlay() {
 void UTriggerPlate::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// PerformTriggerAction();
+	// NOTE: This one is not needed. Respective actors that want to trigger the plate
+	// should have access to the plate and call OnTriggerCallback() instead.
+	// OnTriggerCallback();
 }
 
-void UTriggerPlate::PerformTriggerAction() {
+void UTriggerPlate::OnTriggerCallback() {
 	if (AActor* AcceptableActor = GetAcceptableActor()) {
 		AcceptableActor->SetActorLocationAndRotation(GetPlacementLocationForActor(AcceptableActor),
 		                                             GetOwner()->GetActorRotation());
@@ -32,8 +35,19 @@ void UTriggerPlate::PerformTriggerAction() {
 			Component->SetSimulatePhysics(false);
 			Component->AttachToComponent(this, FAttachmentTransformRules::KeepWorldTransform);
 		}
+
+		if (DoorHandler) {
+			DoorHandler->Open();
+		}
 	}
 }
+
+void UTriggerPlate::OnReleaseCallback() const {
+	if (DoorHandler) {
+		DoorHandler->Close();
+	}
+}
+
 
 AActor* UTriggerPlate::GetAcceptableActor() const {
 	AActor* AcceptableActor = nullptr;
@@ -57,11 +71,12 @@ FVector UTriggerPlate::GetPlacementLocationForActor(const AActor* Actor, const f
 	FVector ActorBoxExtent;
 	Actor->GetActorBounds(false, ActorOrigin, ActorBoxExtent);
 
-	UE_LOG(LogTemp, Warning, TEXT("Trigger plate center: %s"), *TriggerPlateCenter.ToString());
-	UE_LOG(LogTemp, Warning, TEXT("Actor box extent: %s"), *ActorBoxExtent.ToString());
-
 	FVector PlacementLocation = TriggerPlateCenter - FVector(ActorBoxExtent.X, ActorBoxExtent.Y, 0);
 	PlacementLocation.Z = ZOffset;
 
 	return PlacementLocation;
+}
+
+void UTriggerPlate::SetDoorHandler(UDoorHandler* NewDoorHandler) {
+	DoorHandler = NewDoorHandler;
 }

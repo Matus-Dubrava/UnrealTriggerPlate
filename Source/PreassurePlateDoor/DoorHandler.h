@@ -3,20 +3,17 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "DoorHandler.h"
-#include "Components/BoxComponent.h"
-#include "TriggerPlate.generated.h"
+#include "Components/SceneComponent.h"
+#include "DoorHandler.generated.h"
 
-/**
- * 
- */
+
 UCLASS(ClassGroup=(Custom), meta=(BlueprintSpawnableComponent))
-class PREASSUREPLATEDOOR_API UTriggerPlate : public UBoxComponent {
+class PREASSUREPLATEDOOR_API UDoorHandler : public USceneComponent {
 	GENERATED_BODY()
 
 public:
 	// Sets default values for this component's properties
-	UTriggerPlate();
+	UDoorHandler();
 
 protected:
 	// Called when the game starts
@@ -27,19 +24,12 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType,
 	                           FActorComponentTickFunction* ThisTickFunction) override;
 
-	void OnTriggerCallback();
-	void OnReleaseCallback() const;
-
-	UFUNCTION(BlueprintCallable)
-	void SetDoorHandler(UDoorHandler* NewDoorHandler);
+	void Open();
+	void Close();
 
 private:
 	UPROPERTY(EditAnywhere)
-	FName AcceptableActorName;
+	bool IsClosed = true;
 
-	UPROPERTY()
-	UDoorHandler* DoorHandler;
-
-	AActor* GetAcceptableActor() const;
-	FVector GetPlacementLocationForActor(const AActor* Actor, const float ZOffset = 25) const;
+	TArray<TEnumAsByte<ECollisionResponse>> OriginalCollisionResponses;
 };

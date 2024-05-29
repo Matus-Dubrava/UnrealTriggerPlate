@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #include "Grabber.h"
-
+#include "PressurePlateDoorUtils.h"
 #include "Grabbable.h"
 #include "Tags.h"
 
@@ -67,6 +67,14 @@ void UGrabber::Grab() {
 				Component != nullptr) {
 				Component->SetSimulatePhysics(true);
 			}
+
+			// If there is a trigger plate attached to the grabbed object, trigger its release callback.
+			if (UGrabbable* GrabbableComponent = HitResult.GetActor()->FindComponentByClass<UGrabbable>()) {
+				if (UTriggerPlate* TriggerPlate = GrabbableComponent->GetTriggerPlate()) {
+					TriggerPlate->OnReleaseCallback();
+				}
+			}
+
 			HitResult.GetActor()->DetachFromActor(FDetachmentTransformRules::KeepWorldTransform);
 			HitResult.GetActor()->Tags.Add(GRABBED_TAG);
 
@@ -101,7 +109,7 @@ void UGrabber::Release() {
 		if (UGrabbable* Grabbable = Cast<UGrabbable>(
 			GrabbedComponent->GetOwner()->GetComponentByClass(UGrabbable::StaticClass()))) {
 			if (UTriggerPlate* TriggerPlate = Grabbable->GetTriggerPlate()) {
-				TriggerPlate->PerformTriggerAction();
+				TriggerPlate->OnTriggerCallback();
 			}
 		}
 	}
@@ -150,10 +158,7 @@ void UGrabber::UpdateCollisionResponseOnGrab(UPrimitiveComponent* Component,
 	// Once grabbed, disable all collisions for the grabbed object. 
 
 	if (Component) {
-		for (int32 i = 0; i < ECC_MAX; ++i) {
-			OriginalCollisionResponses.Add(Component->GetCollisionResponseToChannel(static_cast<ECollisionChannel>(i)));
-			Component->SetCollisionResponseToChannel(static_cast<ECollisionChannel>(i), ECR_Ignore);
-		}
+		DisableAndStoreCollisionResponses(Component, OriginalCollisionResponses);
 	}
 	else {
 		UE_LOG(LogTemp, Error, TEXT("Calling Grab without a valid component"));
@@ -165,10 +170,7 @@ void UGrabber::UpdateCollisionResponseOnRelease(UPrimitiveComponent* Component,
 	// Restore original collision responses on release.
 
 	if (Component) {
-		for (int32 i = 0; i < ECC_MAX; ++i) {
-			Component->SetCollisionResponseToChannel(static_cast<ECollisionChannel>(i),
-			                                         OriginalCollisionResponses[i]);
-		}
+		RestoreCollisionResponses(Component, OriginalCollisionResponses);
 		OriginalCollisionResponses.Empty();
 	}
 	else {
