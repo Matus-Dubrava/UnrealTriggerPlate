@@ -70,7 +70,7 @@ void UGrabber::Grab() {
 
 			// If there is a trigger plate attached to the grabbed object, trigger its release callback.
 			if (UGrabbable* GrabbableComponent = HitResult.GetActor()->FindComponentByClass<UGrabbable>()) {
-				if (UTriggerPlate* TriggerPlate = GrabbableComponent->GetTriggerPlate()) {
+				if (const UTriggerPlate* TriggerPlate = GrabbableComponent->GetTriggerPlate()) {
 					TriggerPlate->OnReleaseCallback();
 				}
 			}

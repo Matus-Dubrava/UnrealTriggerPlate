@@ -27,6 +27,7 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void SetTriggerPlate(UTriggerPlate* NewTriggerPlate);
+
 	UTriggerPlate* GetTriggerPlate() const;
 
 private:
