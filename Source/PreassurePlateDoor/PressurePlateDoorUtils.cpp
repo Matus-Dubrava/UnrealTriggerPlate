@@ -10,6 +10,9 @@ void StoreCollisionResponses(const UPrimitiveComponent* Component,
 
 void DisableAndStoreCollisionResponses(UPrimitiveComponent* Component,
                                        TArray<TEnumAsByte<ECollisionResponse>>& OriginalCollisionResponses) {
+	// This is convenience function that disables all collision responses for the given component and stores the original
+	// collision responses in a single pass through the array.
+
 	// Clear the OriginalCollisionResponses array before storing the new values.
 	OriginalCollisionResponses.Empty();
 
