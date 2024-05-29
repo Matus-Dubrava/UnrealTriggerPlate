@@ -65,4 +65,5 @@ private:
 	static void UpdateCollisionResponseOnRelease(UPrimitiveComponent* Component,
 	                                             TArray<TEnumAsByte<ECollisionResponse>>& OriginalCollisionResponses);
 	void UpdateObjectLocationOnRelease(UPrimitiveComponent* Component, const float ForwardDistance) const;
+	static bool IsGrabbable(const AActor* Actor);
 };

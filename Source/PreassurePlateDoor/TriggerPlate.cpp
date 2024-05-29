@@ -57,6 +57,9 @@ FVector UTriggerPlate::GetPlacementLocationForActor(const AActor* Actor, const f
 	FVector ActorBoxExtent;
 	Actor->GetActorBounds(false, ActorOrigin, ActorBoxExtent);
 
+	UE_LOG(LogTemp, Warning, TEXT("Trigger plate center: %s"), *TriggerPlateCenter.ToString());
+	UE_LOG(LogTemp, Warning, TEXT("Actor box extent: %s"), *ActorBoxExtent.ToString());
+
 	FVector PlacementLocation = TriggerPlateCenter - FVector(ActorBoxExtent.X, ActorBoxExtent.Y, 0);
 	PlacementLocation.Z = ZOffset;
 

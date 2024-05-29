@@ -97,16 +97,12 @@ void UGrabber::Release() {
 		UpdateObjectLocationOnRelease(GrabbedComponent, HoldDistance);
 		UpdateCollisionResponseOnRelease(GrabbedComponent, OriginalCollisionResponses);
 
-		UGrabbable* Grabbable = Cast<UGrabbable>(
-			GrabbedComponent->GetOwner()->GetComponentByClass(UGrabbable::StaticClass()));
-		if (Grabbable) {
-			UE_LOG(LogTemp, Warning, TEXT("is grabbable"));
+		// Trigger the trigger plate action if the grabbed object has one.
+		if (UGrabbable* Grabbable = Cast<UGrabbable>(
+			GrabbedComponent->GetOwner()->GetComponentByClass(UGrabbable::StaticClass()))) {
 			if (UTriggerPlate* TriggerPlate = Grabbable->GetTriggerPlate()) {
 				TriggerPlate->PerformTriggerAction();
 			}
-		}
-		else {
-			UE_LOG(LogTemp, Warning, TEXT("is NOT grabbable"));
 		}
 	}
 }
@@ -136,8 +132,11 @@ bool UGrabber::PerformConeTrace(const FVector& Start, const FVector& ForwardVect
 			DrawDebugLine(GetWorld(), Start, End, FColor(255, 128, 128), false, .5);
 		}
 
+
 		// If no object has been hit yet, or the current hit is closer than the previous one, update the hit result.
-		if (CurrentHasHit && (!OverallHasHit || HitResult.Distance < OutHitResult.Distance)) {
+		// Only objects with the Grabbable component can be grabbed.
+		if (CurrentHasHit && IsGrabbable(HitResult.GetActor()) && (!OverallHasHit || HitResult.Distance < OutHitResult.
+			Distance)) {
 			OutHitResult = HitResult;
 			OverallHasHit = true;
 		}
@@ -189,4 +188,11 @@ void UGrabber::UpdateObjectLocationOnRelease(UPrimitiveComponent* Component, con
 	Component->GetOwner()->SetActorRotation(PlayerRotation);
 	Component->SetPhysicsLinearVelocity(FVector::ZeroVector);
 	Component->SetPhysicsAngularVelocityInDegrees(FVector::ZeroVector);
+}
+
+bool UGrabber::IsGrabbable(const AActor* Actor) {
+	if (Actor->GetComponentByClass(UGrabbable::StaticClass())) {
+		return true;
+	}
+	return false;
 }
