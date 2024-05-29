@@ -1,7 +1,9 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Tags.h"
 #include "Grabber.h"
+
+#include "Grabbable.h"
+#include "Tags.h"
 
 #include "Engine/World.h"
 
@@ -94,6 +96,18 @@ void UGrabber::Release() {
 		bIsObjectGrabbed = false;
 		UpdateObjectLocationOnRelease(GrabbedComponent, HoldDistance);
 		UpdateCollisionResponseOnRelease(GrabbedComponent, OriginalCollisionResponses);
+
+		UGrabbable* Grabbable = Cast<UGrabbable>(
+			GrabbedComponent->GetOwner()->GetComponentByClass(UGrabbable::StaticClass()));
+		if (Grabbable) {
+			UE_LOG(LogTemp, Warning, TEXT("is grabbable"));
+			if (UTriggerPlate* TriggerPlate = Grabbable->GetTriggerPlate()) {
+				TriggerPlate->PerformTriggerAction();
+			}
+		}
+		else {
+			UE_LOG(LogTemp, Warning, TEXT("is NOT grabbable"));
+		}
 	}
 }
 

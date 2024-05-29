@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-#include "Tags.h"
 #include "TriggerPlate.h"
+#include "Tags.h"
 
 // Sets default values for this component's properties
 UTriggerPlate::UTriggerPlate() {
@@ -20,7 +20,7 @@ void UTriggerPlate::BeginPlay() {
 void UTriggerPlate::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	PerformTriggerAction();
+	// PerformTriggerAction();
 }
 
 void UTriggerPlate::PerformTriggerAction() {
